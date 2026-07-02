@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}My Bookings | FuturePath{% endblock %}
+{% block content %}
+  <section class="page-hero compact">
+    <div class="container">
+      <span class="section-kicker"><i class="bi bi-calendar-check"></i> MEMBER BOOKING HISTORY</span>
+      <h1>My Bookings</h1>
+      <p>Confirmed and cancelled reservations for {{ current_user.full_name }}. Cancelling an eligible booking releases its places immediately.</p>
+    </div>
+  </section>
+  <section class="section-space">
+    <div class="container">
+      {% if bookings %}
+        <div class="booking-list">
+          {% for booking in bookings %}
+            <article class="booking-record">
+              <div class="booking-record-image"><img src="{{ url_for('static', filename=booking.event.image_path) }}" alt=""></div>
+              <div class="booking-record-main">
+                <div class="booking-record-top"><span class="event-category">{{ booking.event.category.name|upper }}</span><span class="status-badge {{ booking.status_class }}">{{ booking.status }}</span></div>
+                <h2><a class="stretched-link" href="{{ url_for('main.event_detail', event_id=booking.event.id) }}">{{ booking.event.title }}</a></h2>
+                <div class="booking-facts">
+                  <span><i class="bi bi-calendar3"></i> {{ booking.event.event_date.strftime('%d %B %Y') }}, {{ booking.event.start_time.strftime('%H:%M') }}</span>
+                  <span><i class="bi bi-geo-alt"></i> {{ booking.event.venue }}</span>
+                  <span><i class="bi bi-people"></i> {{ booking.quantity }} participant{{ '' if booking.quantity == 1 else 's' }}</span>
+                  <span><i class="bi bi-activity"></i> Event status: {{ booking.event.status }}</span>
+                </div>
+              </div>
+              <div class="booking-reference">
+                <span>Booking ID</span><strong>{{ booking.reference }}</strong><small>Booked {{ booking.booked_at.strftime('%d %b %Y, %H:%M') }}</small><b>Free</b>
+                {% if booking.can_cancel %}
+                  <form class="booking-cancel-form" method="post" action="{{ url_for('main.cancel_booking', booking_id=booking.id) }}">
+                    {{ cancel_form.hidden_tag() }}
+                    <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-x-circle me-1"></i> Cancel Booking</button>
+                  </form>
+                {% elif booking.is_cancelled %}
+                  <small class="cancelled-note"><i class="bi bi-check-circle me-1"></i> Cancelled {{ booking.cancelled_at.strftime('%d %b %Y, %H:%M') }}</small>
+                {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state"><i class="bi bi-calendar2-x"></i><h2 class="h5 fw-bold">No bookings yet</h2><p class="text-secondary">Browse an Open event and reserve your first free place.</p><a class="btn btn-primary" href="{{ url_for('main.index') }}#events">Browse Events</a></div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

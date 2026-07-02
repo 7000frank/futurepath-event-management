@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import errors %}
+{% block title %}Register | FuturePath{% endblock %}
+{% block content %}
+  <section class="page-hero compact">
+    <div class="container">
+      <span class="section-kicker"><i class="bi bi-person-plus"></i> CREATE AN ACCOUNT</span>
+      <h1>Join FuturePath</h1>
+      <p>Choose a Student account for event bookings or a Teacher account for publishing and managing events.</p>
+    </div>
+  </section>
+  <section class="section-space">
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-8">
+          <form class="registration-form" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <section class="form-section" aria-labelledby="identity-title">
+              <h2 id="identity-title">Personal Details</h2>
+              <p>Select the account type that matches how you will use FuturePath.</p>
+              <div class="row g-4">
+                <div class="col-12">
+                  <fieldset class="role-fieldset">
+                    <legend class="form-label">{{ form.role.label.text }}</legend>
+                    <div class="role-selector">
+                      {% for option in form.role %}
+                        <div class="role-choice">
+                          {{ option(class_='btn-check') }}
+                          <label for="{{ option.id }}">
+                            <i class="bi {{ 'bi-mortarboard' if option.data == 'student' else 'bi-person-workspace' }}"></i>
+                            <span>{{ option.label.text }}<small>{{ 'Book events and manage personal reservations' if option.data == 'student' else 'Create and manage owned events' }}</small></span>
+                          </label>
+                        </div>
+                      {% endfor %}
+                    </div>
+                    {{ errors(form.role) }}
+                  </fieldset>
+                </div>
+                <div class="col-md-6"><label class="form-label" for="{{ form.first_name.id }}">{{ form.first_name.label.text }}</label>{{ form.first_name(class_='form-control' + (' is-invalid' if form.first_name.errors else ''), autocomplete='given-name') }}{{ errors(form.first_name) }}</div>
+                <div class="col-md-6"><label class="form-label" for="{{ form.last_name.id }}">{{ form.last_name.label.text }}</label>{{ form.last_name(class_='form-control' + (' is-invalid' if form.last_name.errors else ''), autocomplete='family-name') }}{{ errors(form.last_name) }}</div>
+                <div class="col-md-6"><label class="form-label" for="{{ form.email.id }}">{{ form.email.label.text }}</label>{{ form.email(class_='form-control' + (' is-invalid' if form.email.errors else ''), autocomplete='email', placeholder='name@example.com') }}{{ errors(form.email) }}</div>
+                <div class="col-md-6"><label class="form-label" for="{{ form.contact_number.id }}">{{ form.contact_number.label.text }}</label>{{ form.contact_number(class_='form-control' + (' is-invalid' if form.contact_number.errors else ''), autocomplete='tel') }}{{ errors(form.contact_number) }}</div>
+              </div>
+            </section>
+            <section class="form-section" aria-labelledby="security-title">
+              <h2 id="security-title">Account Security</h2>
+              <p>Use at least eight characters. Passwords are stored as secure hashes.</p>
+              <div class="row g-4">
+                <div class="col-md-6"><label class="form-label" for="{{ form.password.id }}">{{ form.password.label.text }}</label>{{ form.password(class_='form-control' + (' is-invalid' if form.password.errors else ''), autocomplete='new-password') }}{{ errors(form.password) }}</div>
+                <div class="col-md-6"><label class="form-label" for="{{ form.confirm.id }}">{{ form.confirm.label.text }}</label>{{ form.confirm(class_='form-control' + (' is-invalid' if form.confirm.errors else ''), autocomplete='new-password') }}{{ errors(form.confirm) }}</div>
+              </div>
+            </section>
+            <div class="form-actions"><a class="btn btn-outline-dark" href="{{ url_for('main.index') }}">Cancel</a>{{ form.submit(class_='btn btn-primary') }}</div>
+          </form>
+        </div>
+        <div class="col-lg-4">
+          <aside class="form-aside">
+            <span class="section-kicker">MEMBER FEATURES</span>
+            <h2>What your account enables</h2>
+            <ul class="check-list"><li>Students reserve and cancel bookings.</li><li>Teachers create and manage events.</li><li>Both account types can post comments.</li><li>Passwords are stored as secure hashes.</li><li>Your selected role controls navigation and permissions.</li></ul>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import errors %}
+{% block title %}{{ event.title }} | FuturePath{% endblock %}
+{% block content %}
+  <section class="event-title-band">
+    <div class="container">
+      <nav aria-label="Breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ url_for('main.index') }}">Events</a></li><li class="breadcrumb-item active" aria-current="page">Event Details</li></ol></nav>
+      <span class="status-badge {{ event.status_class }}"><i class="bi bi-circle-fill"></i> {{ event.status }}</span>
+      <h1>{{ event.title }}</h1>
+      <p>{{ event.summary }}</p>
+      {% if current_user.is_authenticated and current_user.is_teacher and current_user.id == event.owner_id %}
+        <div class="owner-actions"><a class="btn btn-outline-dark" href="{{ url_for('main.edit_event', event_id=event.id) }}"><i class="bi bi-pencil me-1"></i> Edit Event</a>{% if event.status != 'Cancelled' %}<form method="post" action="{{ url_for('main.cancel_event', event_id=event.id) }}">{{ cancel_form.hidden_tag() }}<button class="btn btn-outline-danger" type="submit"><i class="bi bi-x-circle me-1"></i> Cancel Event</button></form>{% endif %}</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="section-space">
+    <div class="container"><div class="row g-5">
+      <div class="col-lg-8">
+        <div class="event-detail-image"><img src="{{ url_for('static', filename=event.image_path) }}" alt="{{ event.title }}"></div>
+        <div class="info-grid" aria-label="Event information">
+          <div class="info-item"><i class="bi bi-calendar3"></i><span>Date<strong>{{ event.event_date.strftime('%d %B %Y') }}</strong></span></div>
+          <div class="info-item"><i class="bi bi-clock"></i><span>Time<strong>{{ event.start_time.strftime('%H:%M') }} – {{ event.end_time.strftime('%H:%M') }}</strong></span></div>
+          <div class="info-item"><i class="bi bi-geo-alt"></i><span>Venue<strong>{{ event.venue }}</strong></span></div>
+          <div class="info-item"><i class="bi bi-person-badge"></i><span>Presented by<strong>{{ event.presenter }}</strong></span></div>
+          <div class="info-item"><i class="bi bi-tags"></i><span>Category<strong>{{ event.category.name }}</strong></span></div>
+          <div class="info-item"><i class="bi bi-heart"></i><span>Access<strong>Free nonprofit booking</strong></span></div>
+        </div>
+
+        <section class="content-section" aria-labelledby="about-title"><h2 id="about-title">About This Event</h2><p>{{ event.description }}</p><p class="prototype-note">Course demonstration: public-figure and institution references do not imply official endorsement or affiliation.</p></section>
+
+        <section class="content-section" id="comments" aria-labelledby="comments-title">
+          <div class="comments-heading"><h2 id="comments-title">Participant Comments</h2><span>{{ event.comments|length }} comment{{ '' if event.comments|length == 1 else 's' }}</span></div>
+          <div class="comment-list">
+            {% for comment in event.comments %}<article class="comment-item"><div class="comment-avatar">{{ comment.user.first_name[0] }}</div><div><div class="comment-meta"><strong>{{ comment.user.full_name }}</strong><time datetime="{{ comment.posted_at.isoformat() }}">{{ comment.posted_at.strftime('%d %B %Y, %H:%M') }}</time></div><p>{{ comment.body }}</p></div></article>{% else %}<p class="text-secondary">No comments yet. Start the discussion after logging in.</p>{% endfor %}
+          </div>
+          {% if current_user.is_authenticated %}
+            <form class="comment-form" method="post" action="{{ url_for('main.post_comment', event_id=event.id) }}">
+              {{ comment_form.hidden_tag() }}
+              {{ comment_form.body.label(class_='form-label') }}
+              {{ comment_form.body(class_='form-control', rows=4, placeholder='Ask a useful question about this event') }}
+              {{ errors(comment_form.body) }}
+              {{ comment_form.submit(class_='btn btn-dark mt-3') }}
+            </form>
+          {% else %}
+            <div class="login-prompt"><i class="bi bi-chat-left-text"></i><span><a href="{{ url_for('auth.login', next=request.path) }}">Log in</a> to post a comment.</span></div>
+          {% endif %}
+        </section>
+      </div>
+
+      <div class="col-lg-4">
+        <aside class="booking-panel" aria-label="Free booking area">
+          <span class="section-kicker">FREE RESERVATION</span><h2>Reserve Places</h2><p>A unique booking reference is generated and stored in your history.</p>
+          <div class="free-access"><i class="bi bi-heart"></i><span>Free access<small>No payment required</small></span></div>
+          <div class="booking-facts"><span>Remaining<strong>{{ event.remaining_places }}</strong></span><span>Capacity<strong>{{ event.capacity }}</strong></span></div>
+          {% if existing_booking and not existing_booking.is_cancelled %}
+            <div class="booked-confirmation">
+              <i class="bi bi-check-circle"></i>
+              <span>Already Booked<strong>{{ existing_booking.reference }}</strong></span>
+            </div>
+            <a class="btn btn-outline-dark w-100" href="{{ url_for('main.bookings') }}"><i class="bi bi-calendar-check me-1"></i> View My Booking</a>
+          {% elif current_user.is_authenticated and event.is_bookable %}
+            <form method="post" action="{{ url_for('main.book_event', event_id=event.id) }}">
+              {{ booking_form.hidden_tag() }}
+              {{ booking_form.submit(class_='btn btn-primary w-100 mt-3') }}
+            </form>
+          {% elif not current_user.is_authenticated and event.is_bookable %}
+            <a class="btn btn-primary w-100" href="{{ url_for('auth.login', next=request.path) }}"><i class="bi bi-box-arrow-in-right me-1"></i> Log In to Book</a>
+          {% else %}
+            <button class="btn btn-secondary w-100" type="button" disabled>{{ event.status }} – Booking Unavailable</button>
+          {% endif %}
+          <p class="booking-note">One account can hold one place per event. Cancelling releases the place immediately.</p>
+        </aside>
+      </div>
+    </div></div>
+  </section>
+{% endblock %}

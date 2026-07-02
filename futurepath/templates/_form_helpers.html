@@ -1,0 +1,11 @@
+{% macro errors(field) %}
+  {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+{% endmacro %}
+
+{% macro input_field(field, type_class='form-control', placeholder='') %}
+  <div>
+    {{ field.label(class_='form-label') }}
+    {{ field(class_=type_class + (' is-invalid' if field.errors else ''), placeholder=placeholder) }}
+    {{ errors(field) }}
+  </div>
+{% endmacro %}

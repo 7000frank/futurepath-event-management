@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}FuturePath | Events{% endblock %}
+{% block content %}
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-media"><img src="{{ url_for('static', filename='img/futurepath-hero.jpg') }}" alt=""></div>
+    <div class="hero-scrim"></div>
+    <div class="container">
+      <div class="hero-content">
+        <span class="hero-kicker">NONPROFIT GAOKAO GUIDANCE EVENTS</span>
+        <h1 id="hero-title">FuturePath<span>Choose with confidence</span></h1>
+        <p class="hero-lead">Find free application guidance talks, university open days and practical subject events. Search live database records, reserve places and keep every booking reference in one account.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary px-4" href="#events"><i class="bi bi-calendar-search me-1"></i> Browse Events</a>
+          <a class="btn btn-outline-dark px-4" href="{{ url_for('main.score_finder') }}"><i class="bi bi-speedometer2 me-1"></i> Find by Score</a>
+        </div>
+        <div class="hero-note"><i class="bi bi-heart"></i> Every event is free. No application plans are sold.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="search-band" aria-labelledby="search-title">
+    <div class="container">
+      <form class="search-panel" method="get" action="{{ url_for('main.index') }}">
+        <div class="search-copy">
+          <span class="section-kicker"><i class="bi bi-search"></i> EVENT SEARCH</span>
+          <h2 id="search-title">Find the right session</h2>
+        </div>
+        <div class="search-controls">
+          <div>
+            <label class="form-label" for="q">Keyword</label>
+            <input class="form-control" id="q" name="q" value="{{ search_text }}" placeholder="Title, venue, presenter or topic">
+          </div>
+          <div>
+            <label class="form-label" for="category">Category</label>
+            <select class="form-select" id="category" name="category">
+              <option value="">All categories</option>
+              {% for category in categories %}<option value="{{ category.slug }}" {{ 'selected' if category.slug == category_slug }}>{{ category.name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="status">Status</label>
+            <select class="form-select" id="status" name="status">
+              <option value="">All statuses</option>
+              {% for value, label in [('open','Open'),('sold-out','Sold Out'),('inactive','Inactive'),('cancelled','Cancelled')] %}
+                <option value="{{ value }}" {{ 'selected' if value == status_filter }}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button class="btn btn-primary" type="submit"><i class="bi bi-search me-1"></i> Search</button>
+        </div>
+        {% if search_text or category_slug or status_filter %}<a class="clear-search" href="{{ url_for('main.index') }}">Clear all filters</a>{% endif %}
+      </form>
+    </div>
+  </section>
+
+  <section class="section-space" id="events" aria-labelledby="events-title">
+    <div class="container">
+      <div class="section-heading">
+        <div><span class="section-kicker"><i class="bi bi-stars"></i> LIVE DATABASE RESULTS</span><h2 id="events-title">Education Events</h2></div>
+        <p>{{ events|length }} event{{ '' if events|length == 1 else 's' }} matched. Status and remaining capacity are calculated from live data.</p>
+      </div>
+      {% if events %}
+        <div class="row g-4">
+          {% for event in events %}
+            {% set user_booking = user_bookings_by_event.get(event.id) %}
+            <div class="col-md-6 col-xl-4">
+              <article class="event-card h-100">
+                <div class="event-image">
+                  <img src="{{ url_for('static', filename=event.image_path) }}" alt="{{ event.title }}">
+                  <span class="status-badge {{ event.status_class }}"><i class="bi bi-circle-fill"></i> {{ event.status }}</span>
+                  {% if user_booking %}<span class="booking-mark"><i class="bi bi-check-circle"></i> Booked</span>{% endif %}
+                </div>
+                <div class="event-card-body">
+                  <div class="event-category">{{ event.category.name|upper }} · FREE EVENT</div>
+                  <h3><a class="stretched-link" href="{{ url_for('main.event_detail', event_id=event.id) }}">{{ event.title }}</a></h3>
+                  <ul class="meta-list">
+                    <li class="meta-item"><i class="bi bi-calendar3"></i> {{ event.event_date.strftime('%d %B %Y') }}, {{ event.start_time.strftime('%H:%M') }}</li>
+                    <li class="meta-item"><i class="bi bi-geo-alt"></i> {{ event.venue }}</li>
+                    <li class="meta-item"><i class="bi bi-people"></i> {{ event.remaining_places }} place{{ '' if event.remaining_places == 1 else 's' }} remaining</li>
+                  </ul>
+                  <div class="event-card-footer"><div class="event-access">Free booking</div><span class="btn btn-outline-dark btn-sm">View Details <i class="bi bi-arrow-right ms-1"></i></span></div>
+                </div>
+              </article>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state"><i class="bi bi-calendar-x"></i><h2 class="h5 fw-bold">No matching events</h2><p class="text-secondary">Try a broader keyword, category or status.</p><a class="btn btn-primary" href="{{ url_for('main.index') }}">Show All Events</a></div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="principle-band" aria-labelledby="principle-title">
+    <div class="container"><div class="row g-5 align-items-center"><div class="col-lg-5"><span class="section-kicker light">OUR NONPROFIT PRINCIPLES</span><h2 id="principle-title">Equal Information, Independent Choices</h2><p>FuturePath connects students with free events while preserving transparent status, ownership and booking information.</p></div><div class="col-lg-7"><div class="row g-4"><div class="col-sm-4"><div class="principle-item"><strong>Free Access</strong><span>Every database price is set to zero</span></div></div><div class="col-sm-4"><div class="principle-item"><strong>Live Capacity</strong><span>Bookings automatically update availability</span></div></div><div class="col-sm-4"><div class="principle-item"><strong>Clear Ownership</strong><span>Only creators may edit or cancel events</span></div></div></div></div></div></div>
+  </section>
+{% endblock %}

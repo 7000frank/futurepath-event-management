@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import errors %}
+{% block title %}{{ heading }} | FuturePath{% endblock %}
+{% block content %}
+  <section class="page-hero"><div class="container"><span class="section-kicker"><i class="bi bi-calendar-plus"></i> MANAGE AN EVENT</span><h1>{{ heading }}</h1><p>Provide complete details for a free guidance activity. Status is calculated automatically and cannot be edited manually.</p></div></section>
+  <section class="section-space"><div class="container"><div class="row g-5"><div class="col-lg-8">
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {{ form.hidden_tag() }}
+      <section class="form-section" aria-labelledby="basic-title"><h2 id="basic-title">Basic Information</h2><p>Use a specific title and explain exactly what participants will experience.</p><div class="row g-4">
+        <div class="col-12"><label class="form-label" for="{{ form.title.id }}">{{ form.title.label.text }}</label>{{ form.title(class_='form-control' + (' is-invalid' if form.title.errors else '')) }}{{ errors(form.title) }}</div>
+        <div class="col-md-6"><label class="form-label" for="{{ form.category_id.id }}">{{ form.category_id.label.text }}</label>{{ form.category_id(class_='form-select' + (' is-invalid' if form.category_id.errors else '')) }}{{ errors(form.category_id) }}</div>
+        <div class="col-md-6"><label class="form-label" for="{{ form.presenter.id }}">{{ form.presenter.label.text }}</label>{{ form.presenter(class_='form-control' + (' is-invalid' if form.presenter.errors else '')) }}{{ errors(form.presenter) }}</div>
+        <div class="col-12"><label class="form-label" for="{{ form.summary.id }}">{{ form.summary.label.text }}</label>{{ form.summary(class_='form-control' + (' is-invalid' if form.summary.errors else '')) }}{{ errors(form.summary) }}</div>
+        <div class="col-12"><label class="form-label" for="{{ form.description.id }}">{{ form.description.label.text }}</label>{{ form.description(class_='form-control' + (' is-invalid' if form.description.errors else ''), rows=7) }}{{ errors(form.description) }}</div>
+        <div class="col-12"><label class="form-label" for="{{ form.image.id }}">{{ form.image.label.text }}</label>{{ form.image(class_='form-control' + (' is-invalid' if form.image.errors else ''), accept='image/png,image/jpeg') }}{{ errors(form.image) }}<div class="form-text">Optional on update. Maximum request size: 5 MB.</div></div>
+      </div></section>
+
+      <section class="form-section" aria-labelledby="schedule-title"><h2 id="schedule-title">Date and Venue</h2><p>Times and locations appear on the event card and detail page.</p><div class="row g-4">
+        <div class="col-md-4"><label class="form-label" for="{{ form.event_date.id }}">{{ form.event_date.label.text }}</label>{{ form.event_date(class_='form-control' + (' is-invalid' if form.event_date.errors else '')) }}{{ errors(form.event_date) }}</div>
+        <div class="col-md-4"><label class="form-label" for="{{ form.start_time.id }}">{{ form.start_time.label.text }}</label>{{ form.start_time(class_='form-control' + (' is-invalid' if form.start_time.errors else '')) }}{{ errors(form.start_time) }}</div>
+        <div class="col-md-4"><label class="form-label" for="{{ form.end_time.id }}">{{ form.end_time.label.text }}</label>{{ form.end_time(class_='form-control' + (' is-invalid' if form.end_time.errors else '')) }}{{ errors(form.end_time) }}</div>
+        <div class="col-12"><label class="form-label" for="{{ form.venue.id }}">{{ form.venue.label.text }}</label>{{ form.venue(class_='form-control' + (' is-invalid' if form.venue.errors else '')) }}{{ errors(form.venue) }}</div>
+      </div></section>
+
+      <section class="form-section" aria-labelledby="booking-title"><h2 id="booking-title">Free Booking and Score Matching</h2><p>Capacity controls Sold Out status. FuturePath enforces a zero ticket price.</p><div class="row g-4">
+        <div class="col-md-4"><label class="form-label" for="{{ form.capacity.id }}">{{ form.capacity.label.text }}</label>{{ form.capacity(class_='form-control' + (' is-invalid' if form.capacity.errors else '')) }}{{ errors(form.capacity) }}</div>
+        <div class="col-md-4"><label class="form-label" for="{{ form.price.id }}">{{ form.price.label.text }}</label>{{ form.price(class_='form-control' + (' is-invalid' if form.price.errors else ''), readonly=true) }}{{ errors(form.price) }}</div>
+        <div class="col-md-4"><div class="free-form-note"><i class="bi bi-heart"></i><span>Nonprofit policy<strong>Always $0.00</strong></span></div></div>
+        <div class="col-md-6"><label class="form-label" for="{{ form.min_score.id }}">{{ form.min_score.label.text }}</label>{{ form.min_score(class_='form-control' + (' is-invalid' if form.min_score.errors else '')) }}{{ errors(form.min_score) }}</div>
+        <div class="col-md-6"><label class="form-label" for="{{ form.max_score.id }}">{{ form.max_score.label.text }}</label>{{ form.max_score(class_='form-control' + (' is-invalid' if form.max_score.errors else '')) }}{{ errors(form.max_score) }}</div>
+      </div></section>
+      <div class="form-actions"><a class="btn btn-outline-dark" href="{{ url_for('main.event_detail', event_id=event.id) if event else url_for('main.index') }}">Cancel</a>{{ form.submit(class_='btn btn-primary') }}</div>
+    </form>
+  </div><div class="col-lg-4"><aside class="form-aside"><span class="section-kicker">OWNER CONTROLS</span><h2>Before You Save</h2><ul class="check-list"><li>Only you can update this event later.</li><li>Bookings automatically reduce remaining places.</li><li>Past dates become Inactive.</li><li>Zero remaining places becomes Sold Out.</li><li>Cancellation is available from the detail page.</li></ul></aside></div></div></div></section>
+{% endblock %}

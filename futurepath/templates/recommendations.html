@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Score Finder | FuturePath{% endblock %}
+{% block content %}
+  <section class="page-hero">
+    <div class="container"><span class="section-kicker"><i class="bi bi-speedometer2"></i> SCORE-BASED EVENT FINDER</span><h1>Discover Events by Score Range</h1><p>Enter a demonstration score to query matching events from the FuturePath database.</p></div>
+  </section>
+  <section class="score-tool-band">
+    <div class="container">
+      <form class="score-tool" method="get" action="{{ url_for('main.score_finder') }}">
+        <div><span class="section-kicker">ENTER A DEMO SCORE</span><h2>What is your Gaokao score?</h2><p>Try the prepared scenarios for 650, 530 or 200 points.</p></div>
+        <div class="score-input-wrap"><label class="form-label" for="score">Gaokao score</label><div class="input-group"><input class="form-control" type="number" id="score" name="score" min="0" max="750" value="{{ raw_score }}" required><span class="input-group-text">points</span><button class="btn btn-primary" type="submit"><i class="bi bi-stars me-1"></i> Show Events</button></div></div>
+        <div class="preset-row"><span>Quick demo</span>{% for preset in [650,530,200] %}<a class="filter-btn {{ 'active' if score == preset }}" href="{{ url_for('main.score_finder', score=preset) }}">{{ preset }}</a>{% endfor %}</div>
+        <div class="score-disclaimer"><i class="bi bi-info-circle"></i> Results demonstrate event matching only. They are not admission advice or probability estimates.</div>
+      </form>
+    </div>
+  </section>
+  <section class="section-space" aria-labelledby="score-results">
+    <div class="container">
+      <div class="section-heading"><div><span class="section-kicker">DATABASE RESULTS</span><h2 id="score-results">{% if score is not none %}Events for {{ score }} points{% else %}Enter a score to begin{% endif %}</h2></div>{% if score is not none %}<p>{{ events|length }} matching event{{ '' if events|length == 1 else 's' }}.</p>{% endif %}</div>
+      {% if score is not none and events %}<div class="row g-4">{% for event in events %}{% set user_booking = user_bookings_by_event.get(event.id) %}<div class="col-md-6"><article class="event-card h-100"><div class="event-image"><img src="{{ url_for('static', filename=event.image_path) }}" alt="{{ event.title }}"><span class="status-badge {{ event.status_class }}">{{ event.status }}</span>{% if user_booking %}<span class="booking-mark"><i class="bi bi-check-circle"></i> Booked</span>{% endif %}</div><div class="event-card-body"><div class="event-category">{{ event.category.name|upper }} · {{ event.min_score }}–{{ event.max_score }} POINT DEMO</div><h3><a class="stretched-link" href="{{ url_for('main.event_detail', event_id=event.id) }}">{{ event.title }}</a></h3><ul class="meta-list"><li class="meta-item"><i class="bi bi-calendar3"></i> {{ event.event_date.strftime('%d %B %Y') }}, {{ event.start_time.strftime('%H:%M') }}</li><li class="meta-item"><i class="bi bi-geo-alt"></i> {{ event.venue }}</li><li class="meta-item"><i class="bi bi-people"></i> {{ event.remaining_places }} places remaining</li></ul><div class="event-card-footer"><div class="event-access">Free booking</div><span class="btn btn-outline-dark btn-sm">View Event</span></div></div></article></div>{% endfor %}</div>
+      {% elif score is not none %}<div class="empty-state"><i class="bi bi-calendar-x"></i><h2 class="h5 fw-bold">No events in this score range</h2><p class="text-secondary">Try 650, 530 or 200 to view the seeded demonstration data.</p></div>{% endif %}
+    </div>
+  </section>
+{% endblock %}

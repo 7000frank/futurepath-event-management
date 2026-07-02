@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import errors %}
+{% block title %}Log In | FuturePath{% endblock %}
+{% block content %}
+  <section class="auth-shell">
+    <div class="container">
+      <div class="auth-layout">
+        <div class="auth-intro">
+          <span class="section-kicker light"><i class="bi bi-person-check"></i> MEMBER ACCESS</span>
+          <h1>Welcome back to FuturePath</h1>
+          <p>Log in to reserve free places, review your booking references, publish events and join event discussions.</p>
+          <dl class="demo-credentials">
+            <div><dt>Demo email</dt><dd>frank@example.com</dd></div>
+            <div><dt>Demo password</dt><dd>FuturePath123!</dd></div>
+          </dl>
+        </div>
+        <div class="auth-panel">
+          <span class="section-kicker"><i class="bi bi-box-arrow-in-right"></i> LOG IN</span>
+          <h2>Access your account</h2>
+          <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+              {{ form.email.label(class_='form-label') }}
+              {{ form.email(class_='form-control' + (' is-invalid' if form.email.errors else ''), autocomplete='email', placeholder='name@example.com') }}
+              {{ errors(form.email) }}
+            </div>
+            <div class="mb-3">
+              {{ form.password.label(class_='form-label') }}
+              {{ form.password(class_='form-control' + (' is-invalid' if form.password.errors else ''), autocomplete='current-password') }}
+              {{ errors(form.password) }}
+            </div>
+            <div class="form-check mb-4">
+              {{ form.remember(class_='form-check-input') }}
+              {{ form.remember.label(class_='form-check-label') }}
+            </div>
+            {{ form.submit(class_='btn btn-primary w-100') }}
+          </form>
+          <p class="auth-switch">New to FuturePath? <a href="{{ url_for('auth.register') }}">Create an account</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
