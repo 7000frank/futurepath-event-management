@@ -190,6 +190,42 @@ def create_event():
     return render_template("event_form.html", form=form, event=None, heading="Create a Nonprofit Event")
 
 
+@main_bp.route("/events/manage")
+@login_required
+def manage_events():
+    require_teacher()
+    status_filter = request.args.get("status", "").strip()
+    allowed_statuses = {"open", "sold-out", "inactive", "cancelled"}
+    if status_filter not in allowed_statuses:
+        status_filter = ""
+
+    statement = (
+        db.select(Event)
+        .where(Event.owner_id == current_user.id)
+        .order_by(Event.updated_at.desc(), Event.event_date.desc())
+    )
+    all_events = db.session.scalars(statement).all()
+    status_counts = {
+        status: sum(event.status_class == status for event in all_events)
+        for status in allowed_statuses
+    }
+    managed_events = (
+        [event for event in all_events if event.status_class == status_filter]
+        if status_filter
+        else all_events
+    )
+    return render_template(
+        "manage_events.html",
+        events=managed_events,
+        total_events=len(all_events),
+        open_events=status_counts["open"],
+        active_bookings=sum(event.booked_quantity for event in all_events),
+        status_counts=status_counts,
+        status_filter=status_filter,
+        cancel_form=EmptyForm(),
+    )
+
+
 @main_bp.route("/events/<int:event_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_event(event_id):
@@ -240,7 +276,44 @@ def cancel_event(event_id):
         flash("The event has been cancelled.", "info")
     else:
         flash("The cancellation request could not be validated.", "danger")
+    if request.form.get("return_to") == "manage_events":
+        return redirect(url_for("main.manage_events"))
     return redirect(url_for("main.event_detail", event_id=event.id))
+
+
+@main_bp.route("/events/<int:event_id>/delete", methods=["GET", "POST"])
+@login_required
+def delete_event(event_id):
+    event = db.get_or_404(Event, event_id)
+    require_owner(event)
+    form = EmptyForm()
+    can_delete = not event.bookings and not event.comments
+
+    if form.validate_on_submit():
+        if not can_delete:
+            flash(
+                "Events with bookings or comments cannot be permanently deleted. Cancel the event to preserve its history.",
+                "danger",
+            )
+            return redirect(url_for("main.manage_events"))
+
+        event_title = event.title
+        uploaded_image = None
+        if event.image_is_upload:
+            uploaded_image = Path(current_app.config["UPLOAD_FOLDER"]) / event.image_filename
+        db.session.delete(event)
+        db.session.commit()
+        if uploaded_image and uploaded_image.exists():
+            uploaded_image.unlink()
+        flash(f'"{event_title}" has been permanently deleted.', "success")
+        return redirect(url_for("main.manage_events"))
+
+    return render_template(
+        "delete_event.html",
+        event=event,
+        form=form,
+        can_delete=can_delete,
+    )
 
 
 @main_bp.route("/events/<int:event_id>/book", methods=["POST"])
