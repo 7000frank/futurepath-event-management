@@ -27,7 +27,8 @@
             <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint == 'main.index' }}" href="{{ url_for('main.index') }}">Events</a></li>
             <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint == 'main.score_finder' }}" href="{{ url_for('main.score_finder') }}">Score Finder</a></li>
             {% if current_user.is_authenticated and current_user.is_teacher %}
-              <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint in ['main.create_event', 'main.edit_event'] }}" href="{{ url_for('main.create_event') }}">Create Event</a></li>
+              <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint in ['main.manage_events', 'main.edit_event', 'main.delete_event'] }}" href="{{ url_for('main.manage_events') }}">Manage Events</a></li>
+              <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint == 'main.create_event' }}" href="{{ url_for('main.create_event') }}">Create Event</a></li>
             {% endif %}
             {% if current_user.is_authenticated %}
               <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint == 'main.bookings' }}" href="{{ url_for('main.bookings') }}">My Bookings</a></li>
@@ -76,6 +77,7 @@
           <div class="footer-links">
             <a class="footer-link" href="{{ url_for('main.index') }}"><i class="bi bi-house"></i> Home</a>
             <a class="footer-link" href="{{ url_for('main.score_finder') }}"><i class="bi bi-speedometer2"></i> Score Finder</a>
+            {% if current_user.is_authenticated and current_user.is_teacher %}<a class="footer-link" href="{{ url_for('main.manage_events') }}"><i class="bi bi-gear"></i> Manage Events</a>{% endif %}
             {% if current_user.is_authenticated %}<a class="footer-link" href="{{ url_for('main.bookings') }}"><i class="bi bi-calendar-check"></i> My Bookings</a>{% endif %}
           </div>
         </div>

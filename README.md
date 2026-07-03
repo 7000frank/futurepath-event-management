@@ -1,6 +1,6 @@
 # FuturePath Assignment 2
 
-FuturePath is a nonprofit education-event website built with Flask and SQLite. It upgrades the Assignment 1 static prototype into a database-backed application with search, score matching, authentication, comments, event ownership and bookings.
+FuturePath is a nonprofit education-event website built with Flask and SQLite. It upgrades the Assignment 1 static prototype into a database-backed application with search, score matching, authentication, comments, event ownership and bookings. Teacher accounts also have a Manage Events workspace for reviewing, editing, cancelling and safely deleting their own events. Permanent deletion is limited to events without bookings or comments so participant history remains intact.
 
 ## Run locally
 

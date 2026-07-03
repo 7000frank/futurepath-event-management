@@ -295,18 +295,52 @@ class FuturePathTestCase(unittest.TestCase):
         self.login()
         response = self.client.get("/events/create")
         self.assertEqual(response.status_code, 403)
+        response = self.client.get("/events/manage")
+        self.assertEqual(response.status_code, 403)
+        response = self.client.get(f"/events/{self.event_id}/delete")
+        self.assertEqual(response.status_code, 403)
         response = self.client.get(f"/events/{self.event_id}/edit")
         self.assertEqual(response.status_code, 403)
         self.assertIn(b"Access Denied", response.data)
 
         self.client.post("/logout")
         self.login("owner@example.com")
+        response = self.client.get("/events/manage")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Manage Events", response.data)
+        self.assertIn(b"Test Campus Open Day", response.data)
+        self.assertIn(b"Edit", response.data)
         response = self.client.get(f"/events/{self.event_id}/edit")
         self.assertEqual(response.status_code, 200)
-        response = self.client.post(f"/events/{self.event_id}/cancel", follow_redirects=True)
+        response = self.client.post(
+            f"/events/{self.event_id}/cancel",
+            data={"return_to": "manage_events"},
+            follow_redirects=True,
+        )
         self.assertIn(b"event has been cancelled", response.data)
+        self.assertIn(b"Event cancelled", response.data)
         with self.app.app_context():
             self.assertEqual(db.session.get(Event, self.event_id).status, "Cancelled")
+
+        response = self.client.post(f"/events/{self.event_id}/delete", follow_redirects=True)
+        self.assertIn(b"permanently deleted", response.data)
+        with self.app.app_context():
+            self.assertIsNone(db.session.get(Event, self.event_id))
+
+    def test_event_with_booking_cannot_be_permanently_deleted(self):
+        self.login()
+        self.client.post(f"/events/{self.event_id}/book")
+        self.client.post("/logout")
+        self.login("owner@example.com")
+
+        response = self.client.get(f"/events/{self.event_id}/delete")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Permanent deletion is unavailable", response.data)
+
+        response = self.client.post(f"/events/{self.event_id}/delete", follow_redirects=True)
+        self.assertIn(b"cannot be permanently deleted", response.data)
+        with self.app.app_context():
+            self.assertIsNotNone(db.session.get(Event, self.event_id))
 
     def test_creator_can_create_event_and_status_is_automatic(self):
         self.login("owner@example.com")

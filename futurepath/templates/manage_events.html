@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Manage Events | FuturePath{% endblock %}
+{% block content %}
+  <section class="page-hero compact">
+    <div class="container">
+      <div class="management-hero">
+        <div>
+          <span class="section-kicker"><i class="bi bi-calendar2-week"></i> TEACHER EVENT MANAGEMENT</span>
+          <h1>Manage Events</h1>
+          <p>Review, update and cancel events created by {{ current_user.full_name }}. Event status is calculated automatically.</p>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('main.create_event') }}"><i class="bi bi-plus-lg me-1"></i> Create Event</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-space">
+    <div class="container">
+      <div class="summary-strip" aria-label="Event management summary">
+        <div class="summary-item"><strong>{{ total_events }}</strong><span>Total events</span></div>
+        <div class="summary-item"><strong>{{ open_events }}</strong><span>Open events</span></div>
+        <div class="summary-item"><strong>{{ active_bookings }}</strong><span>Active bookings</span></div>
+      </div>
+
+      <div class="management-toolbar">
+        <div class="filter-bar" aria-label="Filter managed events by status">
+          <a class="filter-btn {{ 'active' if not status_filter }}" href="{{ url_for('main.manage_events') }}">All <span>{{ total_events }}</span></a>
+          {% for value, label in [('open', 'Open'), ('sold-out', 'Sold Out'), ('inactive', 'Inactive'), ('cancelled', 'Cancelled')] %}
+            <a class="filter-btn {{ 'active' if status_filter == value }}" href="{{ url_for('main.manage_events', status=value) }}">{{ label }} <span>{{ status_counts[value] }}</span></a>
+          {% endfor %}
+        </div>
+        <span class="management-help"><i class="bi bi-info-circle"></i> Cancelled events remain in history.</span>
+      </div>
+
+      {% if events %}
+        <div class="managed-event-list">
+          {% for event in events %}
+            <article class="managed-event-record">
+              <a class="managed-event-image" href="{{ url_for('main.event_detail', event_id=event.id) }}" aria-label="View {{ event.title }}">
+                <img src="{{ url_for('static', filename=event.image_path) }}" alt="">
+                <span class="status-badge {{ event.status_class }}"><i class="bi bi-circle-fill"></i> {{ event.status }}</span>
+              </a>
+              <div class="managed-event-main">
+                <span class="event-category">{{ event.category.name|upper }}</span>
+                <h2><a href="{{ url_for('main.event_detail', event_id=event.id) }}">{{ event.title }}</a></h2>
+                <div class="managed-event-facts">
+                  <span><i class="bi bi-calendar3"></i> {{ event.event_date.strftime('%d %b %Y') }}, {{ event.start_time.strftime('%H:%M') }}</span>
+                  <span><i class="bi bi-geo-alt"></i> {{ event.venue }}</span>
+                  <span><i class="bi bi-person-badge"></i> {{ event.presenter }}</span>
+                </div>
+                <div class="managed-event-metrics" aria-label="{{ event.title }} statistics">
+                  <div><strong>{{ event.booked_quantity }}</strong><span>Booked</span></div>
+                  <div><strong>{{ event.remaining_places }}</strong><span>Remaining</span></div>
+                  <div><strong>{{ event.comments|length }}</strong><span>Comments</span></div>
+                </div>
+              </div>
+              <div class="managed-event-actions">
+                <a class="btn btn-outline-dark" href="{{ url_for('main.event_detail', event_id=event.id) }}"><i class="bi bi-eye me-1"></i> View</a>
+                <a class="btn btn-outline-dark" href="{{ url_for('main.edit_event', event_id=event.id) }}"><i class="bi bi-pencil me-1"></i> Edit</a>
+                {% if event.status != 'Cancelled' %}
+                  <form method="post" action="{{ url_for('main.cancel_event', event_id=event.id) }}">
+                    {{ cancel_form.hidden_tag() }}
+                    <input type="hidden" name="return_to" value="manage_events">
+                    <button class="btn btn-outline-danger" type="submit"><i class="bi bi-x-circle me-1"></i> Cancel</button>
+                  </form>
+                {% else %}
+                  <span class="managed-event-closed"><i class="bi bi-lock"></i> Event cancelled</span>
+                {% endif %}
+                <a class="btn btn-danger" href="{{ url_for('main.delete_event', event_id=event.id) }}"><i class="bi bi-trash3 me-1"></i> Delete</a>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <i class="bi bi-calendar2-x fs-1 text-secondary"></i>
+          <h2 class="h5 fw-bold">No {{ status_filter|replace('-', ' ')|title if status_filter else '' }} events found</h2>
+          <p class="text-secondary">Create a new event or choose another status filter.</p>
+          <a class="btn btn-primary" href="{{ url_for('main.create_event') }}"><i class="bi bi-plus-lg me-1"></i> Create Event</a>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
