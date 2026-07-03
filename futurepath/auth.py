@@ -23,6 +23,7 @@ def register():
             last_name=form.last_name.data.strip(),
             email=form.email.data.strip().lower(),
             contact_number=form.contact_number.data.strip(),
+            street_address=form.street_address.data.strip(),
             role=form.role.data,
             password_hash=generate_password_hash(form.password.data),
         )
