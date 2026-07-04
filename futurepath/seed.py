@@ -24,6 +24,7 @@ def seed_database():
         email="frank@example.com",
         password_hash=generate_password_hash("FuturePath123!"),
         contact_number="13800000001",
+        street_address="88 Xianlin Avenue, Nanjing",
         role="teacher",
     )
     chen = User(
@@ -32,6 +33,7 @@ def seed_database():
         email="chen@example.com",
         password_hash=generate_password_hash("FuturePath123!"),
         contact_number="13800000002",
+        street_address="16 Jiangjun Avenue, Nanjing",
         role="teacher",
     )
     student = User(
@@ -40,6 +42,7 @@ def seed_database():
         email="student@example.com",
         password_hash=generate_password_hash("FuturePath123!"),
         contact_number="13800000003",
+        street_address="12 Student Road, Nanjing",
         role="student",
     )
     student_two = User(
@@ -48,6 +51,7 @@ def seed_database():
         email="student.two@example.com",
         password_hash=generate_password_hash("FuturePath123!"),
         contact_number="13800000004",
+        street_address="26 Learning Street, Nanjing",
         role="student",
     )
     db.session.add_all([frank, chen, student, student_two])

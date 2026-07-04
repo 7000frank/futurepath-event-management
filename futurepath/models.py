@@ -13,6 +13,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     contact_number = db.Column(db.String(30), nullable=False)
+    street_address = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), nullable=False, default="student")
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 

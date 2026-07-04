@@ -40,6 +40,7 @@ class FuturePathTestCase(unittest.TestCase):
                 email="owner@example.com",
                 password_hash=generate_password_hash("TestPass123!"),
                 contact_number="0400000001",
+                street_address="1 Owner Street, Brisbane",
                 role="teacher",
             )
             member = User(
@@ -48,6 +49,7 @@ class FuturePathTestCase(unittest.TestCase):
                 email="member@example.com",
                 password_hash=generate_password_hash("TestPass123!"),
                 contact_number="0400000002",
+                street_address="2 Member Street, Brisbane",
                 role="student",
             )
             db.session.add_all([campus, guidance, owner, member])
@@ -121,6 +123,7 @@ class FuturePathTestCase(unittest.TestCase):
                 "last_name": "Student",
                 "email": "new@example.com",
                 "contact_number": "0400000003",
+                "street_address": "3 New Street, Brisbane",
                 "role": "student",
                 "password": "NewPass123!",
                 "confirm": "NewPass123!",
@@ -132,6 +135,7 @@ class FuturePathTestCase(unittest.TestCase):
             user = db.session.scalar(db.select(User).where(User.email == "new@example.com"))
             self.assertIsNotNone(user)
             self.assertEqual(user.role, "student")
+            self.assertEqual(user.street_address, "3 New Street, Brisbane")
 
         response = self.login("new@example.com", "NewPass123!")
         self.assertIn(b"Welcome back, New", response.data)
@@ -146,6 +150,7 @@ class FuturePathTestCase(unittest.TestCase):
                 "last_name": "Teacher",
                 "email": "newteacher@example.com",
                 "contact_number": "0400000004",
+                "street_address": "4 Teacher Street, Brisbane",
                 "role": "teacher",
                 "password": "NewPass123!",
                 "confirm": "NewPass123!",

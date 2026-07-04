@@ -40,6 +40,7 @@
                 <div class="col-md-6"><label class="form-label" for="{{ form.last_name.id }}">{{ form.last_name.label.text }}</label>{{ form.last_name(class_='form-control' + (' is-invalid' if form.last_name.errors else ''), autocomplete='family-name') }}{{ errors(form.last_name) }}</div>
                 <div class="col-md-6"><label class="form-label" for="{{ form.email.id }}">{{ form.email.label.text }}</label>{{ form.email(class_='form-control' + (' is-invalid' if form.email.errors else ''), autocomplete='email', placeholder='name@example.com') }}{{ errors(form.email) }}</div>
                 <div class="col-md-6"><label class="form-label" for="{{ form.contact_number.id }}">{{ form.contact_number.label.text }}</label>{{ form.contact_number(class_='form-control' + (' is-invalid' if form.contact_number.errors else ''), autocomplete='tel') }}{{ errors(form.contact_number) }}</div>
+                <div class="col-12"><label class="form-label" for="{{ form.street_address.id }}">{{ form.street_address.label.text }}</label>{{ form.street_address(class_='form-control' + (' is-invalid' if form.street_address.errors else ''), autocomplete='street-address', placeholder='Street number and street name') }}{{ errors(form.street_address) }}</div>
               </div>
             </section>
             <section class="form-section" aria-labelledby="security-title">
